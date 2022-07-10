@@ -4,7 +4,9 @@ import { Observable } from "zen-observable-ts";
 import { BatchOptions, createFetcher } from "../fetcher";
 import { LinkedType } from "../types";
 import { generateGraphqlOperation, GraphqlOperation } from "./generateGraphqlOperation";
+import { chain } from './chain'
 import { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import get from 'lodash.get'
 
 export type Headers = AxiosRequestHeaders | (() => AxiosRequestHeaders) | (() => Promise<AxiosRequestHeaders>);
 export type BaseFetcher = {
@@ -40,6 +42,11 @@ export function createClient({
     subscription?: Function;
     fetcherInstance: BaseFetcher["fetcherInstance"];
     fetcherMethod: BaseFetcher["fetcherMethod"];
+    chain?: {
+      query?: Function
+      mutation?: Function
+      subscription?: Function
+  }
   } = {
     fetcherInstance,
     fetcherMethod,
@@ -77,7 +84,32 @@ export function createClient({
     };
   }
 
+  client.chain = {
+    query: chain((path, request, defaultValue,config) =>
+        client.query(request,config).then(mapResponse(path, defaultValue)),
+    ),
+    mutation: chain((path, request, defaultValue,config) =>
+        client.mutation(request,config).then(mapResponse(path, defaultValue)),
+    ),
+    subscription: chain((path, request, defaultValue,config) => {
+        const obs = client.subscription(request,config)
+        const mapper = mapResponse(path, defaultValue)
+        return Observable.from(obs).map(mapper)
+    }),
+}
+
   return client;
+}
+const mapResponse = (path: string[], defaultValue: any = undefined) => (
+  response: any,
+) => {
+  const result = get(response, [...path], defaultValue)
+
+  if (result === undefined) {
+      throw new Error(`Response path \`${path.join('.')}\` is empty`)
+  }
+
+  return result
 }
 
 function getSubscriptionClient(opts: ClientOptions = {}, config?: ClientOptions): WSClient {
