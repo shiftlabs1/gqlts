@@ -86,13 +86,13 @@ export function createClient({
 
   client.chain = {
     query: chain((path, request, defaultValue,config) =>
-        client.query(request,config).then(mapResponse(path, defaultValue)),
+        client?.query?.(request,config).then(mapResponse(path, defaultValue)),
     ),
     mutation: chain((path, request, defaultValue,config) =>
-        client.mutation(request,config).then(mapResponse(path, defaultValue)),
+        client?.mutation?.(request,config).then(mapResponse(path, defaultValue)),
     ),
     subscription: chain((path, request, defaultValue,config) => {
-        const obs = client.subscription(request,config)
+        const obs = client?.subscription?.(request,config)
         const mapper = mapResponse(path, defaultValue)
         return Observable.from(obs).map(mapper)
     }),
