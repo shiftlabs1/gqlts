@@ -1,4 +1,4 @@
-import { ArgMap, CompressedField, CompressedFieldMap, CompressedTypeMap, TypeMap } from "@gqlts/runtime/dist/types";
+import { ArgMap, CompressedField, CompressedFieldMap, CompressedTypeMap, TypeMap } from "gqlgen-runtime/dist/types";
 import {
   GraphQLSchema,
   isEnumType,

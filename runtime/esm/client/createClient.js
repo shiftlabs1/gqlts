@@ -47,14 +47,11 @@ export function createClient(_a) {
         };
     }
     client.chain = {
-        query: chain(function (path, request, defaultValue, config) {
-            return client.query(request, config).then(mapResponse(path, defaultValue));
-        }),
-        mutation: chain(function (path, request, defaultValue, config) {
-            return client.mutation(request, config).then(mapResponse(path, defaultValue));
-        }),
+        query: chain(function (path, request, defaultValue, config) { var _a; return (_a = client === null || client === void 0 ? void 0 : client.query) === null || _a === void 0 ? void 0 : _a.call(client, request, config).then(mapResponse(path, defaultValue)); }),
+        mutation: chain(function (path, request, defaultValue, config) { var _a; return (_a = client === null || client === void 0 ? void 0 : client.mutation) === null || _a === void 0 ? void 0 : _a.call(client, request, config).then(mapResponse(path, defaultValue)); }),
         subscription: chain(function (path, request, defaultValue, config) {
-            var obs = client.subscription(request, config);
+            var _a;
+            var obs = (_a = client === null || client === void 0 ? void 0 : client.subscription) === null || _a === void 0 ? void 0 : _a.call(client, request, config);
             var mapper = mapResponse(path, defaultValue);
             return Observable.from(obs).map(mapper);
         }),

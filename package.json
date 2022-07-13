@@ -1,5 +1,5 @@
 {
-  "name": "gqlts",
+  "name": "gqlgen",
   "version": "3.2.6",
   "private": true,
   "keywords": [
@@ -35,7 +35,7 @@
     "integration-tests"
   ],
   "scripts": {
-    "buildall": "ultra -r --filter '@gqlts/*' --topology build",
+    "buildall": "ultra -r --filter '@gqlgen/*' --topology build",
     "examplecli": "yarn play -o example/generated -e https://graphql-compose.herokuapp.com/northwind/",
     "genall": "ultra -r gen",
     "integration": "cd integration-tests && yarn gen && tsc && yarn test",

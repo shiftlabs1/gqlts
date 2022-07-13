@@ -1,18 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.renderClientDefinition = void 0;
-const requestTypeName_1 = require("../requestTypes/requestTypeName");
-const config_1 = require("../../config");
-const renderClient_1 = require("./renderClient");
-function renderClientDefinition(schema, ctx) {
-    var _a, _b;
-    const queryType = schema.getQueryType();
-    const mutationType = schema.getMutationType();
-    const subscriptionType = schema.getSubscriptionType();
-    const prefix = ((_a = ctx.config) === null || _a === void 0 ? void 0 : _a.methodPrefix) || "";
-    const suffix = ((_b = ctx.config) === null || _b === void 0 ? void 0 : _b.methodSuffix) || "";
-    ctx.addCodeBlock(`
-    import { FieldsSelection, GraphqlOperation, ClientOptions, Observable } from '${config_1.RUNTIME_LIB_NAME}'
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+
+var _requestTypeName = require('../requestTypes/requestTypeName');
+var _config = require('../../config');
+var _renderClient = require('./renderClient');
+
+ function renderClientDefinition(schema, ctx) {
+  const queryType = schema.getQueryType();
+  const mutationType = schema.getMutationType();
+  const subscriptionType = schema.getSubscriptionType();
+  const prefix = _optionalChain([ctx, 'access', _ => _.config, 'optionalAccess', _2 => _2.methodPrefix]) || "";
+  const suffix = _optionalChain([ctx, 'access', _3 => _3.config, 'optionalAccess', _4 => _4.methodSuffix]) || "";
+
+  ctx.addCodeBlock(`
+    import { FieldsSelection, GraphqlOperation, ClientOptions, Observable } from '${_config.RUNTIME_LIB_NAME}'
     import { Client as WSClient } from "graphql-ws"
     import { AxiosRequestConfig, AxiosInstance } from 'axios'
     export * from './schema'
@@ -21,59 +21,70 @@ function renderClientDefinition(schema, ctx) {
     export declare const everything: { __scalar: boolean }
     export declare const version: string
   `);
-    // Client interface
-    ctx.addCodeBlock(renderClientType({ mutationType, queryType, subscriptionType }));
-    // generateQueryOp and QueryResult types
-    ctx.addCodeBlock(renderSupportFunctionsTypes({
-        mutationType,
-        queryType,
-        subscriptionType,
-    }));
-    ctx.addCodeBlock((0, renderClient_1.renderEnumsMaps)(schema, "type"));
-}
-exports.renderClientDefinition = renderClientDefinition;
+
+  // Client interface
+  ctx.addCodeBlock(renderClientType({ mutationType, queryType, subscriptionType }));
+
+  // generateQueryOp and QueryResult types
+  ctx.addCodeBlock(
+    renderSupportFunctionsTypes({
+      mutationType,
+      queryType,
+      subscriptionType,
+    })
+  );
+
+  ctx.addCodeBlock(_renderClient.renderEnumsMaps.call(void 0, schema, "type"));
+} exports.renderClientDefinition = renderClientDefinition;
+
 function renderClientTypesImports({ queryType, mutationType, subscriptionType }) {
-    const imports = [];
-    if (queryType) {
-        imports.push((0, requestTypeName_1.requestTypeName)(queryType), queryType.name);
-    }
-    if (mutationType) {
-        imports.push((0, requestTypeName_1.requestTypeName)(mutationType), mutationType.name);
-    }
-    if (subscriptionType) {
-        imports.push((0, requestTypeName_1.requestTypeName)(subscriptionType), subscriptionType.name);
-    }
-    if (imports.length > 0) {
-        return `import {${imports.join(",")}} from './schema'`;
-    }
-    return "";
+  const imports = [];
+  if (queryType) {
+    imports.push(_requestTypeName.requestTypeName.call(void 0, queryType), queryType.name);
+  }
+
+  if (mutationType) {
+    imports.push(_requestTypeName.requestTypeName.call(void 0, mutationType), mutationType.name);
+  }
+  if (subscriptionType) {
+    imports.push(_requestTypeName.requestTypeName.call(void 0, subscriptionType), subscriptionType.name);
+  }
+  if (imports.length > 0) {
+    return `import {${imports.join(",")}} from './schema'`;
+  }
+  return "";
 }
+
 function renderClientType({ queryType, mutationType, subscriptionType }) {
-    let interfaceContent = "";
-    if (queryType) {
-        interfaceContent += `
-        query<R extends ${(0, requestTypeName_1.requestTypeName)(queryType)}>(
+  let interfaceContent = "";
+
+  if (queryType) {
+    interfaceContent += `
+        query<R extends ${_requestTypeName.requestTypeName.call(void 0, queryType)}>(
             request: R & { __name?: string },
             config?: RC,
         ): Promise<GraphqlResponse<FieldsSelection<${queryType.name}, R>>>
         `;
-    }
-    if (mutationType) {
-        interfaceContent += `
-        mutation<R extends ${(0, requestTypeName_1.requestTypeName)(mutationType)}>(
+  }
+
+  if (mutationType) {
+    interfaceContent += `
+        mutation<R extends ${_requestTypeName.requestTypeName.call(void 0, mutationType)}>(
             request: R & { __name?: string },
             config?: RC,
         ): Promise<GraphqlResponse<FieldsSelection<${mutationType.name}, R>>>
         `;
-    }
-    if (subscriptionType) {
-        interfaceContent += `
-        subscription<R extends ${(0, requestTypeName_1.requestTypeName)(subscriptionType)}>(
+  }
+
+  if (subscriptionType) {
+    interfaceContent += `
+        subscription<R extends ${_requestTypeName.requestTypeName.call(void 0, subscriptionType)}>(
             request: R & { __name?: string },
         ): Observable<GraphqlResponse<FieldsSelection<${subscriptionType.name}, R>>>
         `;
-    }
-    return `
+  }
+
+  return `
     export type Head<T extends unknown | unknown[]> = T extends [infer H, ...unknown[]] ? H : never
     export interface GraphQLError {
         message: string
@@ -107,27 +118,41 @@ function renderClientType({ queryType, mutationType, subscriptionType }) {
     }
     `;
 }
+
 // TODO add the close method that closes the ws client
+
 function renderSupportFunctionsTypes({ queryType, mutationType, subscriptionType }) {
-    let code = "";
-    if (queryType) {
-        code += `
-        export type QueryResult<fields extends ${(0, requestTypeName_1.requestTypeName)(queryType)}> = GraphqlResponse<FieldsSelection<${queryType.name}, fields>>
+  let code = "";
+  if (queryType) {
+    code += `
+        export type QueryResult<fields extends ${_requestTypeName.requestTypeName.call(void 0, queryType)}> = GraphqlResponse<FieldsSelection<${
+      queryType.name
+    }, fields>>
 
-        export declare const generateQueryOp: (fields: ${(0, requestTypeName_1.requestTypeName)(queryType)} & { __name?: string }) => GraphqlOperation`;
-    }
-    if (mutationType) {
-        code += `
-        export type MutationResult<fields extends ${(0, requestTypeName_1.requestTypeName)(mutationType)}> = GraphqlResponse<FieldsSelection<${mutationType.name}, fields>>
+        export declare const generateQueryOp: (fields: ${_requestTypeName.requestTypeName.call(void 0, 
+          queryType
+        )} & { __name?: string }) => GraphqlOperation`;
+  }
+  if (mutationType) {
+    code += `
+        export type MutationResult<fields extends ${_requestTypeName.requestTypeName.call(void 0, mutationType)}> = GraphqlResponse<FieldsSelection<${
+      mutationType.name
+    }, fields>>
 
-        export declare const generateMutationOp: (fields: ${(0, requestTypeName_1.requestTypeName)(mutationType)} & { __name?: string }) => GraphqlOperation`;
-    }
-    if (subscriptionType) {
-        code += `
-        export type SubscriptionResult<fields extends ${(0, requestTypeName_1.requestTypeName)(subscriptionType)}> = GraphqlResponse<FieldsSelection<${subscriptionType.name}, fields>>
+        export declare const generateMutationOp: (fields: ${_requestTypeName.requestTypeName.call(void 0, 
+          mutationType
+        )} & { __name?: string }) => GraphqlOperation`;
+  }
+  if (subscriptionType) {
+    code += `
+        export type SubscriptionResult<fields extends ${_requestTypeName.requestTypeName.call(void 0, 
+          subscriptionType
+        )}> = GraphqlResponse<FieldsSelection<${subscriptionType.name}, fields>>
 
-        export declare const generateSubscriptionOp: (fields: ${(0, requestTypeName_1.requestTypeName)(subscriptionType)} & { __name?: string }) => GraphqlOperation`;
-    }
-    return code;
+        export declare const generateSubscriptionOp: (fields: ${_requestTypeName.requestTypeName.call(void 0, 
+          subscriptionType
+        )} & { __name?: string }) => GraphqlOperation`;
+  }
+
+  return code;
 }
-//# sourceMappingURL=renderClientDefinition.js.map

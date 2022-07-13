@@ -1304,6 +1304,41 @@
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
   integrity sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==
 
+"@gqlts/cli@^3.2.6":
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/@gqlts/cli/-/cli-3.2.6.tgz#f3299978af6e1b4a1b88eda68ce989d31460ffb9"
+  integrity sha512-VS+g5zMijsCe2mL6ZKEBRYfFVUDy2BW5h3LBbXCWyKiTt4eXRF0iPqV105Fju3e2fZhLjWpFObM+OcXpVEkv4A==
+  dependencies:
+    "@gqlts/runtime" "^3.2.6"
+    "@graphql-tools/graphql-file-loader" "^7.3.15"
+    "@graphql-tools/load" "^7.5.14"
+    chalk "^4.1.2"
+    fs-extra "^10.1.0"
+    graphql "*"
+    isomorphic-unfetch "^3.1.0"
+    listr "^0.14.3"
+    lodash "^4.17.21"
+    mkdirp "^1.0.4"
+    prettier "^2.7.1"
+    qs "^6.10.5"
+    rimraf "^3.0.2"
+    yargs "^17.5.1"
+
+"@gqlts/runtime@^3.2.6":
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/@gqlts/runtime/-/runtime-3.2.6.tgz#f2a3c16cfed0c197bd0359eca03b9bd7a5210a77"
+  integrity sha512-Cdnltr5j54oed3dD2cZkQzDaId6AK07rN6D+ii/JgA4nH6Jov+d4bSDfG1xwcdizRu830k+1tvHk4Re6LZnDdA==
+  dependencies:
+    axios "^0.27.2"
+    form-data "^4.0.0"
+    graphql-ws "^5.9.0"
+    is-plain-obj "^4.1.0"
+    lodash.assign "^4.2.0"
+    lodash.get "^4.4.2"
+    lodash.startswith "^4.2.1"
+    ws "^8.8.0"
+    zen-observable-ts "^1.1.0"
+
 "@graphql-toolkit/code-file-loader@0.7.5":
   version "0.7.5"
   resolved "https://registry.yarnpkg.com/@graphql-toolkit/code-file-loader/-/code-file-loader-0.7.5.tgz#065ea6d30511baf24fe79a9cadd3258e59b0e761"

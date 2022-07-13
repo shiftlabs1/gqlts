@@ -1,21 +1,22 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.interfaceType = void 0;
-const comment_1 = require("../common/comment");
-const objectType_1 = require("./objectType");
-function interfaceType(type, ctx) {
-    if (!ctx.schema) {
-        throw new Error("schema is required to render unionType");
-    }
-    const typeNames = ctx.schema.getPossibleTypes(type).map((t) => t.name);
-    if (!typeNames.length) {
-        (0, objectType_1.objectType)(type, ctx);
-    }
-    else {
-        ctx.addCodeBlock(`${(0, comment_1.typeComment)(type)}export type ${type.name} = (${typeNames.join(" | ")}) & { __isUnion?: true }`);
-    }
-}
-exports.interfaceType = interfaceType;
+"use strict";Object.defineProperty(exports, "__esModule", {value: true});
+
+var _comment = require('../common/comment');
+var _objectType = require('./objectType');
+
+ function interfaceType(type, ctx) {
+  if (!ctx.schema) {
+    throw new Error("schema is required to render unionType");
+  }
+  const typeNames = ctx.schema.getPossibleTypes(type).map((t) => t.name);
+  if (!typeNames.length) {
+    _objectType.objectType.call(void 0, type, ctx);
+  } else {
+    ctx.addCodeBlock(
+      `${_comment.typeComment.call(void 0, type)}export type ${type.name} = (${typeNames.join(" | ")}) & { __isUnion?: true }`
+    );
+  }
+} exports.interfaceType = interfaceType;
+
 // interface should produce an object like
 // export type Nameable = {
 // 	__interface:{
@@ -26,6 +27,7 @@ exports.interfaceType = interfaceType;
 // 		['on_CardStack']: CardStack;
 // 	}
 // }
+
 // export const interfaceType = (type: GraphQLInterfaceType, ctx: RenderContext) => {
 //     if (!ctx.schema) {
 //         throw new Error('schema is req  required to render unionType ')
@@ -34,6 +36,7 @@ exports.interfaceType = interfaceType;
 //     let resolveContent = typeNames
 //         .map((name) => `on_${name}?: ${name}`)
 //         .join('\n    ')
+
 //     ctx.addCodeBlock(
 //         `${typeComment(type)}export type ${type.name}={
 //   __interface:
@@ -45,4 +48,3 @@ exports.interfaceType = interfaceType;
 // }`,
 //     )
 // }
-//# sourceMappingURL=interfaceType.js.map

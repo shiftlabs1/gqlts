@@ -1,4 +1,4 @@
-export declare const RUNTIME_LIB_NAME = "@gqlts/runtime";
+export declare const RUNTIME_LIB_NAME = "gqlgen-runtime";
 export interface Config {
     verbose?: boolean;
     endpoint?: string;

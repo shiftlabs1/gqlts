@@ -1,19 +1,21 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTypeMappedAlias = void 0;
-const knownTypes = {
-    Int: "number",
-    Float: "number",
-    String: "string",
-    Boolean: "boolean",
-    ID: "string",
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+
+
+const knownTypes
+
+ = {
+  Int: "number",
+  Float: "number",
+  String: "string",
+  Boolean: "boolean",
+  ID: "string",
 };
-function getTypeMappedAlias(type, ctx) {
-    var _a;
-    const map = Object.assign(Object.assign({}, knownTypes), (((_a = ctx === null || ctx === void 0 ? void 0 : ctx.config) === null || _a === void 0 ? void 0 : _a.scalarTypes) || {}));
-    return (map === null || map === void 0 ? void 0 : map[type.name]) || "any";
-}
-exports.getTypeMappedAlias = getTypeMappedAlias;
+
+ function getTypeMappedAlias(type, ctx) {
+  const map = { ...knownTypes, ...(_optionalChain([ctx, 'optionalAccess', _ => _.config, 'optionalAccess', _2 => _2.scalarTypes]) || {}) };
+  return _optionalChain([map, 'optionalAccess', _3 => _3[type.name]]) || "any";
+} exports.getTypeMappedAlias = getTypeMappedAlias;
+
 // export const renderTypeMappedAlias = (
 //     type: GraphQLNamedType,
 //     ctx: RenderContext,
@@ -25,4 +27,3 @@ exports.getTypeMappedAlias = getTypeMappedAlias;
 //         )
 //     }
 // }
-//# sourceMappingURL=typeMappedAlias.js.map

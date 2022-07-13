@@ -1,7 +1,7 @@
 {
-  "name": "@gqlts/runtime",
-  "version": "3.2.6",
-  "description": "Gqlts runtime client",
+  "name": "gqlgen-runtime",
+  "version": "4.0.2",
+  "description": "Gqlgen runtime client",
   "keywords": [
     "gqlts",
     "graphql",

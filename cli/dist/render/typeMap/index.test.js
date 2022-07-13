@@ -1,39 +1,46 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const render_1 = require("../../testHelpers/render");
-const RenderContext_1 = require("../common/RenderContext");
-const objectType_1 = require("./objectType");
-const scalarType_1 = require("./scalarType");
-const unionType_1 = require("./unionType");
-const testCase = (schemaGql, renderer, cases, output = false) => __awaiter(void 0, void 0, void 0, function* () {
-    const schema = yield (0, render_1.toClientSchema)(schemaGql);
-    const ctx = new RenderContext_1.RenderContext(schema);
-    for (const t in cases) {
-        const type = schema.getType(t);
-        const expected = cases[t];
-        if (!type) {
-            throw new Error(`type ${t} is not defined in the schema`);
-        }
-        if (output) {
-            console.log(JSON.stringify(renderer(type, ctx), null, 2));
-        }
-        else {
-            expect(renderer(type, ctx)).toEqual(expected);
-        }
+var _render = require('../../testHelpers/render');
+var _RenderContext = require('../common/RenderContext');
+
+var _objectType = require('./objectType');
+var _scalarType = require('./scalarType');
+var _unionType = require('./unionType');
+
+
+
+
+
+const testCase = async (
+  schemaGql,
+  renderer,
+  cases,
+  output = false
+) => {
+  const schema = await _render.toClientSchema.call(void 0, schemaGql);
+
+  const ctx = new (0, _RenderContext.RenderContext)(schema);
+
+  for (const t in cases) {
+    const type = schema.getType(t);
+    const expected = cases[t];
+
+    if (!type) {
+      throw new Error(`type ${t} is not defined in the schema`);
     }
-    // if (output) throw new Error('test case did not run') // TODO readd tests
-});
-test("scalarType", () => testCase(
-/* GraphQL */ `
+
+    if (output) {
+      console.log(JSON.stringify(renderer(type, ctx), null, 2));
+    } else {
+      expect(renderer(type, ctx)).toEqual(expected);
+    }
+  }
+
+  // if (output) throw new Error('test case did not run') // TODO readd tests
+};
+
+test("scalarType", () =>
+  testCase(
+    /* GraphQL */ `
       enum Enum {
         some
         other
@@ -46,13 +53,19 @@ test("scalarType", () => testCase(
         customScalar: Scalar
         enum: Enum
       }
-    `, scalarType_1.scalarType, {
-    String: {},
-    Scalar: {},
-    Enum: {},
-}, true));
-test("objectType", () => testCase(
-/* GraphQL */ `
+    `,
+    _scalarType.scalarType,
+    {
+      String: {},
+      Scalar: {},
+      Enum: {},
+    },
+    true
+  ));
+
+test("objectType", () =>
+  testCase(
+    /* GraphQL */ `
       interface Interface {
         some: String
       }
@@ -83,48 +96,56 @@ test("objectType", () => testCase(
       type Query {
         _: Boolean
       }
-    `, objectType_1.objectType, {
-    Object: {
+    `,
+    _objectType.objectType,
+    {
+      Object: {
         scalar: { type: "Int" },
         object: { type: "Object" },
         interface: { type: "Interface" },
         optionalArgScalar: {
-            type: "Int",
-            args: { arg: ["Int", "Int"] },
+          type: "Int",
+          args: { arg: ["Int", "Int"] },
         },
         optionalArgObject: {
-            type: "Object",
-            args: { arg: ["Int", "Int"] },
+          type: "Object",
+          args: { arg: ["Int", "Int"] },
         },
         optionalArgInterface: {
-            type: "Interface",
-            args: { arg: ["Int", "Int"] },
+          type: "Interface",
+          args: { arg: ["Int", "Int"] },
         },
         nestedArg: {
-            type: "Boolean",
-            args: {
-                a: ["[[[Int]]]", "Int"],
-                b: ["[[[Int!]!]!]!", "Int"],
-            },
+          type: "Boolean",
+          args: {
+            a: ["[[[Int]]]", "Int"],
+            b: ["[[[Int!]!]!]!", "Int"],
+          },
         },
         __typename: { type: "String" },
+
         // scalar: ['scalar', 'optionalArgScalar', 'nestedArg'],
-    },
-    Interface: {
+      },
+      Interface: {
         some: { type: "String" },
         on_ImplementorA: { type: "ImplementorA" },
         on_ImplementorB: { type: "ImplementorB" },
         __typename: { type: "String" },
+
         // scalar: ['some'],
-    },
-    ObjectWithoutScalar: {
+      },
+      ObjectWithoutScalar: {
         __typename: { type: "String" },
         interface: { type: "Interface" },
         object: { type: "Object" },
+      },
     },
-}, true));
-test("unionType", () => testCase(
-/* GraphQL */ `
+    true
+  ));
+
+test("unionType", () =>
+  testCase(
+    /* GraphQL */ `
       type Some {
         field: Int
       }
@@ -142,12 +163,15 @@ test("unionType", () => testCase(
       type Query {
         _: Boolean
       }
-    `, unionType_1.unionType, {
-    Union: {
+    `,
+    _unionType.unionType,
+    {
+      Union: {
         on_Some: { type: "Some" },
         on_Other: { type: "Other" },
         on_Another: { type: "Another" },
         __typename: { type: "String" },
+      },
     },
-}, true));
-//# sourceMappingURL=index.test.js.map
+    true
+  ));

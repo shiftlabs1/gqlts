@@ -1,104 +1,118 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.resolveConcreteTypes = exports.linkTypeMap = void 0;
-var tslib_1 = require("tslib");
-var lodash_assign_1 = tslib_1.__importDefault(require("lodash.assign"));
-function linkTypeMap(typeMap) {
-    var indexToName = lodash_assign_1.default.apply(void 0, tslib_1.__spreadArray([{}], tslib_1.__read(Object.keys(typeMap.types).map(function (k, i) {
-        var _a;
-        return (_a = {}, _a[i] = k, _a);
-    })), false));
-    // add the name value
-    var intermediaryTypeMap = lodash_assign_1.default.apply(void 0, tslib_1.__spreadArray([{}], tslib_1.__read(Object.keys(typeMap.types || {}).map(function (k) {
-        var _a;
-        var type = typeMap.types[k];
-        var fields = type || {};
-        // processFields(fields, indexToName)
-        return _a = {},
-            _a[k] = {
-                name: k,
-                // type scalar properties
-                scalar: Object.keys(fields).filter(function (f) {
-                    var _a;
-                    var _b = tslib_1.__read((_a = fields[f]) !== null && _a !== void 0 ? _a : [], 1), type = _b[0];
-                    if (!type) {
-                        return false;
-                    }
-                    return typeMap.scalars.includes(type);
-                }),
-                // fields with corresponding `type` and `args`
-                fields: lodash_assign_1.default.apply(void 0, tslib_1.__spreadArray([{}], tslib_1.__read(Object.keys(fields).map(function (f) {
-                    var _a;
-                    var _b;
-                    var _c = tslib_1.__read((_b = fields[f]) !== null && _b !== void 0 ? _b : [], 2), typeIndex = _c[0], args = _c[1];
-                    if (!typeIndex) {
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
+var _lodashassign = require('lodash.assign'); var _lodashassign2 = _interopRequireDefault(_lodashassign);
+
+
+
+
+
+
+
+
+ function linkTypeMap(typeMap) {
+  const indexToName = _lodashassign2.default.call(void 0, {}, ...Object.keys(typeMap.types).map((k, i) => ({ [i]: k })));
+
+  // add the name value
+  let intermediaryTypeMap = _lodashassign2.default.call(void 0, 
+    {},
+    ...Object.keys(typeMap.types || {}).map((k) => {
+      const type = typeMap.types[k];
+      const fields = type || {};
+      // processFields(fields, indexToName)
+      return {
+        [k]: {
+          name: k,
+          // type scalar properties
+          scalar: Object.keys(fields).filter((f) => {
+            const [type] = _nullishCoalesce(fields[f], () => ( []));
+            if (!type) {
+              return false;
+            }
+            return typeMap.scalars.includes(type);
+          }),
+          // fields with corresponding `type` and `args`
+          fields: _lodashassign2.default.call(void 0, 
+            {},
+            ...Object.keys(fields).map((f) => {
+              const [typeIndex, args] = _nullishCoalesce(fields[f], () => ( []));
+              if (!typeIndex) {
+                return {};
+              }
+              return {
+                [f]: {
+                  // replace index with type name
+                  type: indexToName[typeIndex],
+                  args: _lodashassign2.default.call(void 0, 
+                    {},
+                    ...Object.keys(_nullishCoalesce(args, () => ( {}))).map((k) => {
+                      if (!args || !args[k]) {
                         return {};
-                    }
-                    return _a = {},
-                        _a[f] = {
-                            // replace index with type name
-                            type: indexToName[typeIndex],
-                            args: lodash_assign_1.default.apply(void 0, tslib_1.__spreadArray([{}], tslib_1.__read(Object.keys(args !== null && args !== void 0 ? args : {}).map(function (k) {
-                                var _a;
-                                var _b;
-                                if (!args || !args[k]) {
-                                    return {};
-                                }
-                                // if argTypeString == argTypeName, argTypeString is missing, need to read it
-                                var _c = tslib_1.__read((_b = args[k]) !== null && _b !== void 0 ? _b : [], 2), argTypeName = _c[0], argTypeString = _c[1];
-                                if (!argTypeName) {
-                                    return {};
-                                }
-                                return _a = {},
-                                    _a[k] = [indexToName[argTypeName], argTypeString || indexToName[argTypeName]],
-                                    _a;
-                            })), false)),
-                        },
-                        _a;
-                })), false)),
-            },
-            _a;
-    })), false));
-    var res = (0, exports.resolveConcreteTypes)(intermediaryTypeMap);
-    return res;
-}
-exports.linkTypeMap = linkTypeMap;
+                      }
+                      // if argTypeString == argTypeName, argTypeString is missing, need to read it
+                      const [argTypeName, argTypeString] = _nullishCoalesce(args[k], () => ( []));
+                      if (!argTypeName) {
+                        return {};
+                      }
+                      return {
+                        [k]: [indexToName[argTypeName], argTypeString || indexToName[argTypeName]],
+                      };
+                    })
+                  ),
+                },
+              };
+            })
+          ),
+        },
+      };
+    })
+  );
+  const res = exports.resolveConcreteTypes.call(void 0, intermediaryTypeMap);
+  return res;
+} exports.linkTypeMap = linkTypeMap;
+
 // replace typename with concrete type
-var resolveConcreteTypes = function (linkedTypeMap) {
-    Object.keys(linkedTypeMap).forEach(function (typeNameFromKey) {
-        var type = linkedTypeMap[typeNameFromKey];
-        // type.name = typeNameFromKey
-        if (!(type === null || type === void 0 ? void 0 : type.fields)) {
-            return;
-        }
-        var fields = type.fields;
-        Object.keys(fields).forEach(function (f) {
-            var field = fields[f];
-            if (field === null || field === void 0 ? void 0 : field.args) {
-                var args_1 = field.args;
-                Object.keys(args_1).forEach(function (key) {
-                    var arg = args_1[key];
-                    if (arg) {
-                        var _a = tslib_1.__read(arg, 1), typeName_1 = _a[0];
-                        if (typeof typeName_1 === "string") {
-                            if (!linkedTypeMap[typeName_1]) {
-                                linkedTypeMap[typeName_1] = { name: typeName_1 };
-                            }
-                            arg[0] = linkedTypeMap[typeName_1];
-                        }
-                    }
-                });
+ const resolveConcreteTypes = (linkedTypeMap) => {
+  Object.keys(linkedTypeMap).forEach((typeNameFromKey) => {
+    const type = linkedTypeMap[typeNameFromKey];
+    // type.name = typeNameFromKey
+    if (!_optionalChain([type, 'optionalAccess', _ => _.fields])) {
+      return;
+    }
+
+    const fields = type.fields;
+
+    Object.keys(fields).forEach((f) => {
+      const field = fields[f];
+
+      if (_optionalChain([field, 'optionalAccess', _2 => _2.args])) {
+        const args = field.args;
+        Object.keys(args).forEach((key) => {
+          const arg = args[key];
+
+          if (arg) {
+            const [typeName] = arg;
+
+            if (typeof typeName === "string") {
+              if (!linkedTypeMap[typeName]) {
+                linkedTypeMap[typeName] = { name: typeName };
+              }
+
+              arg[0] = linkedTypeMap[typeName];
             }
-            var typeName = field === null || field === void 0 ? void 0 : field.type;
-            if ((field === null || field === void 0 ? void 0 : field.type) && typeof typeName === "string") {
-                if (!linkedTypeMap[typeName]) {
-                    linkedTypeMap[typeName] = { name: typeName };
-                }
-                field.type = linkedTypeMap[typeName];
-            }
+          }
         });
+      }
+
+      const typeName = _optionalChain([field, 'optionalAccess', _3 => _3.type]);
+
+      if (_optionalChain([field, 'optionalAccess', _4 => _4.type]) && typeof typeName === "string") {
+        if (!linkedTypeMap[typeName]) {
+          linkedTypeMap[typeName] = { name: typeName };
+        }
+
+        field.type = linkedTypeMap[typeName];
+      }
     });
-    return linkedTypeMap;
-};
-exports.resolveConcreteTypes = resolveConcreteTypes;
-//# sourceMappingURL=linkTypeMap.js.map
+  });
+
+  return linkedTypeMap;
+}; exports.resolveConcreteTypes = resolveConcreteTypes;

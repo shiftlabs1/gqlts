@@ -1,18 +1,14 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.renderClientEsm = exports.renderClientCjs = exports.renderEnumsMaps = void 0;
-const graphql_1 = require("graphql");
-const config_1 = require("../../config");
-const excludedTypes_1 = require("../common/excludedTypes");
-const camelCase_1 = __importDefault(require("lodash/camelCase"));
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }var _graphql = require('graphql');
+
+var _config = require('../../config');
+var _excludedTypes = require('../common/excludedTypes');
+var _camelCase = require('lodash/camelCase'); var _camelCase2 = _interopRequireDefault(_camelCase);
+
 const { version } = require("../../../package.json");
+
 function renderClientCode(ctx) {
-    var _a;
-    const url = ((_a = ctx.config) === null || _a === void 0 ? void 0 : _a.endpoint) ? `"${ctx.config.endpoint}"` : "undefined";
-    return `
+  const url = _optionalChain([ctx, 'access', _ => _.config, 'optionalAccess', _2 => _2.endpoint]) ? `"${ctx.config.endpoint}"` : "undefined";
+  return `
 function(options) {
     options = options || {}
     var optionsCopy = {
@@ -27,57 +23,59 @@ function(options) {
     return createClientOriginal(optionsCopy)
 }`;
 }
-function renderEnumsMaps(schema, moduleType) {
-    let typeMap = schema.getTypeMap();
-    const enums = [];
-    for (const name in typeMap) {
-        if (excludedTypes_1.excludedTypes.includes(name))
-            continue;
-        const type = typeMap[name];
-        if ((0, graphql_1.isEnumType)(type)) {
-            enums.push(type);
-        }
+
+ function renderEnumsMaps(schema, moduleType) {
+  let typeMap = schema.getTypeMap();
+
+  const enums = [];
+  for (const name in typeMap) {
+    if (_excludedTypes.excludedTypes.includes(name)) continue;
+
+    const type = typeMap[name];
+
+    if (_graphql.isEnumType.call(void 0, type)) {
+      enums.push(type);
     }
-    if (enums.length === 0)
-        return "";
-    const declaration = (() => {
-        if (moduleType === "esm") {
-            return "export const ";
-        }
-        else if (moduleType === "cjs") {
-            return "module.exports.";
-        }
-        else if (moduleType === "type") {
-            return "export declare const ";
-        }
-        return "";
-    })();
-    return enums
-        .map((type) => `${declaration}${(0, camelCase_1.default)("enum" + type.name)}${moduleType === "type" ? ": " : " = "}{\n` +
+  }
+  if (enums.length === 0) return "";
+  const declaration = (() => {
+    if (moduleType === "esm") {
+      return "export const ";
+    } else if (moduleType === "cjs") {
+      return "module.exports.";
+    } else if (moduleType === "type") {
+      return "export declare const ";
+    }
+    return "";
+  })();
+  return enums
+    .map(
+      (type) =>
+        `${declaration}${_camelCase2.default.call(void 0, "enum" + type.name)}${moduleType === "type" ? ": " : " = "}{\n` +
         type
-            .getValues()
-            .map((v) => {
-            if (!(v === null || v === void 0 ? void 0 : v.name)) {
-                return "";
+          .getValues()
+          .map((v) => {
+            if (!_optionalChain([v, 'optionalAccess', _3 => _3.name])) {
+              return "";
             }
             return `  ${moduleType === "type" ? "readonly " : ""}${v.name}: '${v.name}'`;
-        })
-            .join(",\n") +
-        `\n}\n`)
-        .join("\n");
-}
-exports.renderEnumsMaps = renderEnumsMaps;
-function renderClientCjs(schema, ctx) {
-    var _a, _b;
-    const prefix = ((_a = ctx.config) === null || _a === void 0 ? void 0 : _a.methodPrefix) || "";
-    const suffix = ((_b = ctx.config) === null || _b === void 0 ? void 0 : _b.methodSuffix) || "";
-    ctx.addCodeBlock(`
+          })
+          .join(",\n") +
+        `\n}\n`
+    )
+    .join("\n");
+} exports.renderEnumsMaps = renderEnumsMaps;
+
+ function renderClientCjs(schema, ctx) {
+  const prefix = _optionalChain([ctx, 'access', _4 => _4.config, 'optionalAccess', _5 => _5.methodPrefix]) || "";
+  const suffix = _optionalChain([ctx, 'access', _6 => _6.config, 'optionalAccess', _7 => _7.methodSuffix]) || "";
+  ctx.addCodeBlock(`
   const {
       linkTypeMap,
       createClient: createClientOriginal,
       generateGraphqlOperation,
       assertSameVersion,
-  } = require('${config_1.RUNTIME_LIB_NAME}')
+  } = require('${_config.RUNTIME_LIB_NAME}')
   var typeMap = linkTypeMap(require('./types.cjs'))
 
   var version = '${version}'
@@ -107,19 +105,18 @@ function renderClientCjs(schema, ctx) {
     module.exports[k] = schemaExports[k];
   }
   `);
-}
-exports.renderClientCjs = renderClientCjs;
-function renderClientEsm(schema, ctx) {
-    var _a, _b;
-    const prefix = ((_a = ctx.config) === null || _a === void 0 ? void 0 : _a.methodPrefix) || "";
-    const suffix = ((_b = ctx.config) === null || _b === void 0 ? void 0 : _b.methodSuffix) || "";
-    ctx.addCodeBlock(`
+} exports.renderClientCjs = renderClientCjs;
+
+ function renderClientEsm(schema, ctx) {
+  const prefix = _optionalChain([ctx, 'access', _8 => _8.config, 'optionalAccess', _9 => _9.methodPrefix]) || "";
+  const suffix = _optionalChain([ctx, 'access', _10 => _10.config, 'optionalAccess', _11 => _11.methodSuffix]) || "";
+  ctx.addCodeBlock(`
   import {
       linkTypeMap,
       createClient as createClientOriginal,
       generateGraphqlOperation,
       assertSameVersion,
-  } from '${config_1.RUNTIME_LIB_NAME}'
+  } from '${_config.RUNTIME_LIB_NAME}'
   import types from './types.esm'
   var typeMap = linkTypeMap(types)
   export * from './guards.esm'
@@ -144,6 +141,4 @@ function renderClientEsm(schema, ctx) {
     __scalar: true
   }
   `);
-}
-exports.renderClientEsm = renderClientEsm;
-//# sourceMappingURL=renderClient.js.map
+} exports.renderClientEsm = renderClientEsm;
