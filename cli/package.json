@@ -1,6 +1,6 @@
 {
-  "name": "@gqlts/cli",
-  "version": "3.2.6",
+  "name": "gqlgen-cli",
+  "version": "4.0.1",
   "description": "Generate a client sdk from your GraphQl API",
   "keywords": [
     "gqlts",
@@ -28,7 +28,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "gqlts": "./dist/cli.js"
+    "gqlgen": "./dist/cli.js"
   },
   "files": [
     "/dist/*",
@@ -76,11 +76,11 @@
     "timeout": 9999999999
   },
   "dependencies": {
-    "@gqlts/runtime": "^3.2.6",
     "@graphql-tools/graphql-file-loader": "^7.3.15",
     "@graphql-tools/load": "^7.5.14",
     "chalk": "^4.1.2",
     "fs-extra": "^10.1.0",
+    "gqlgen-runtime": "^4.0.0",
     "graphql": "*",
     "isomorphic-unfetch": "^3.1.0",
     "listr": "^0.14.3",
